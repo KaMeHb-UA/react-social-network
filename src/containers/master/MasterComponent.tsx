@@ -8,6 +8,7 @@ import Snackbar from '@material-ui/core/Snackbar'
 import LinearProgress from '@material-ui/core/LinearProgress'
 import {Helmet} from 'react-helmet'
 import {Map} from 'immutable'
+import { getTranslate, getActiveLanguage } from 'react-localize-redux'
 
 // - Import components
 
@@ -118,14 +119,14 @@ export class MasterComponent extends Component<IMasterComponentProps, IMasterCom
    */
   public render () {
 
-    const { progress, global, loaded, guest, uid, sendFeedbackStatus, hideMessage } = this.props
+    const { progress, global, loaded, guest, uid, sendFeedbackStatus, hideMessage, translate } = this.props
     const { loading, isVerifide } = this.state
 
     return (
       <div id='master'>
       <Helmet>
                 <meta charSet='utf-8' />
-                <title>React Social Network</title>
+                <title>{translate!('base.appName')}</title>
                 <link rel='canonical' href='https://github.com/Qolzam/react-social-network' />
             </Helmet>
        {sendFeedbackStatus ? <SendFeedback /> : ''}
@@ -199,6 +200,8 @@ const mapStateToProps = (state: Map<string, any>) => {
   const global = Map(state.get('global', {})).toJS()
   const { sendFeedbackStatus, progress } = global
   return {
+    currentLanguage: getActiveLanguage(state.get('locale')).code,
+    translate: getTranslate(state.get('locale')),
     sendFeedbackStatus,
     progress,
     guest: authorize.guest,

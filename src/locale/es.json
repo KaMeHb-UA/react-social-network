@@ -1,4 +1,7 @@
 {
+    "base" : {
+        "appName": "Verde"
+    },
     "sidebar" : {
         "home": "Home",
         "profile": "Profile",

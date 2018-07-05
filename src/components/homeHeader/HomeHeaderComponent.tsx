@@ -189,7 +189,7 @@ export class HomeHeaderComponent extends Component<IHomeHeaderComponentProps, IH
           </IconButton>
           {/* Header title */}
           <Typography variant='title' color='primary' style={{ marginLeft: '15px' }} >
-            {config.settings.appName}
+            {translate!('base.appName')}
           </Typography>
           <div className='homeHeader__title-root'>
           <Hidden smDown>

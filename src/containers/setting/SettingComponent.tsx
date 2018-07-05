@@ -140,7 +140,7 @@ export class SettingComponent extends Component<ISettingComponentProps,ISettingC
       <Grid container spacing={24}>
         <Grid item xs={12} className={classes.contain}>
 
-        <h1 className='g__app-name'>{config.settings.appName}</h1>
+        <h1 className='g__app-name'>{translate!('base.appName')}</h1>
 
         <div className='animate-bottom'>
           <Paper className={classes.paper} elevation={1} >
