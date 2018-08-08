@@ -1,0 +1,77 @@
+// ---------------------------------------------------------------- \\
+// Firestore rules for Amir Movahedi's react-social-network project \\
+// https://github.com/Qolzam/react-social-network                   \\
+//                                                                  \\
+// Author: Влад <KaMeHb> Марченко (https://github.com/KaMeHb-UA)    \\
+// License: MsPL                                                    \\
+// Feedbacks:                                                       \\
+//     E-mail: marlock@etlgr.com                                    \\
+//     Telegram: https://t.me/KaMeHb_UA                             \\
+// ---------------------------------------------------------------- \\
+
+service cloud.firestore {
+	match /databases/{database}/documents {
+	
+		// Service functions
+	
+		function ruleDone(collection){
+			return collection == 'messages'
+				|| collection == 'accessTokens'
+				|| collection == 'comments'
+				|| collection == 'feeds'
+		}
+		function userExists(uid){
+			return exists(/databases/$(database)/documents/userInfo/$(uid))
+		}
+		function checkComment(data, uid){
+			return data.creationDate != null
+				&& data.postId != null
+				&& exists(/databases/$(database)/documents/posts/$(data.postId))
+				&& data.score != null
+				&& data.text != null
+				&& data.userId != null
+				&& data.userId == uid
+				// is it really needed? There is not enough just data.userId?
+				// Why this properties exists in comment data?
+				&& data.userAvatar != null
+				&& data.userDisplayName != null
+		}
+		function myComment(comment, uid){
+			return get(/databases/$(database)/documents/comments/$(comment)).data.userId == uid;
+		}
+		function checkFeed(data, feed, uid){
+			return data.feedType != null
+				&& data.user != null
+				// is it really needed?
+				&& data.id == feed
+		}
+		
+
+		// Matches
+		// Messages may contain restricted info and MUST be accessed only through API
+//		match /messages/{sender} {
+//		  allow read, create, update: if request.auth.uid == sender;
+//		}
+//		match /messages/{sender}/{receiver}/{message} {
+//		  allow read, create, update: if request.auth.uid == sender;
+//		  allow read: if request.auth.uid == receiver;
+//		}
+		match /accessTokens/{token} {
+			allow create, get: if request.resource.data.uid == request.auth.uid
+				&& exists(/databases/$(database)/documents/apps/$(request.resource.data.appId));
+		}
+		match /comments/{comment} {
+			allow read: if request.auth.uid != null;
+			allow create: if checkComment(request.resource.data, request.auth.uid);
+			allow delete: if myComment(comment, request.auth.uid);
+			allow update: if myComment(comment, request.auth.uid)
+				&& checkComment(request.resource.data, request.auth.uid);
+		}
+		match /feeds/{feed} {
+			allow create: if checkFeed(request.resource.data, feed, request.auth.uid);
+		}
+		match /{collection}/{document=**} {
+			allow read, write: if !ruleDone(collection);
+		}
+	}
+}
